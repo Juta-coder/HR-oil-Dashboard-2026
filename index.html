@@ -1,0 +1,1060 @@
+<!-- HR Oil Impact Dashboard v35 | Standalone HTML | Ready for GitHub Pages -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HR Oil Impact Dashboard v35</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --red:#c62828;--red-lt:#fff0f0;--green:#15803d;--green-lt:#dcfce7;
+  --orange:#c2410c;--orange-lt:#fff7ed;--purple:#7c3aed;
+  --amber:#b45309;--amber-lt:#fffbeb;--blue:#1d4ed8;--blue-lt:#dbeafe;
+  --gray:#374151;--gray-lt:#f3f4f6;--muted:#6b7280;
+  --border:#e5e7eb;--text:#1a1a1a;--bg:#f8fafc;--white:#fff;
+  --r:10px;--rl:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:var(--blue)}
+.container{max-width:1100px;margin:0 auto;padding:0 16px 40px}
+
+/* HEADER */
+.hdr{background:var(--white);border-bottom:1px solid var(--border);padding:10px 0;position:sticky;top:0;z-index:100}
+.hdr-inner{max-width:1100px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hdr-title{font-size:15px;font-weight:700}
+.hdr-sub{font-size:11px;color:var(--muted)}
+.hdr-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sdot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0}
+.sdot.spin{background:#f59e0b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--gray);font-family:inherit;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:var(--gray-lt)}
+.btn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-blue:hover{background:#1e40af}
+
+/* NAV */
+.nav{display:flex;border-bottom:1.5px solid var(--border);overflow-x:auto}
+.ntab{font-size:13px;padding:8px 16px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.ntab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+
+/* SECTIONS */
+.sec{padding-top:14px;display:none}.sec.active{display:block}
+
+/* ALERT */
+.alert{border-radius:var(--r);padding:12px 16px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.alert-crisis{background:var(--red-lt);border:1.5px solid #ffb3b3}
+.alert-info{background:var(--amber-lt);border:1px solid #fcd34d}
+.alert-ok{background:var(--green-lt);border:1px solid #86efac}
+.alert-icon{font-size:20px;flex-shrink:0}
+.alert-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.alert-crisis .alert-title{color:var(--red)}
+.alert-info .alert-title{color:#92400e}
+.alert-ok .alert-title{color:var(--green)}
+.alert-sub{font-size:12px;line-height:1.6;color:#555}
+
+/* KPI */
+.kpi-row{display:grid;gap:8px;margin-bottom:8px}
+.kpi-row-3{grid-template-columns:repeat(3,1fr)}
+.kpi-row-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:700px){.kpi-row-3,.kpi-row-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.kpi-row-3,.kpi-row-4{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
+.kpi-hl{border-color:#fca5a5;background:#fff8f8}
+.kpi-sp{border-color:#fca5a5}
+.kpi-dark{background:#0f172a;border-color:#1e3a5f}
+.kpi-tier{border-color:#f0abfc;background:#fdf2f8}
+.kpi-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.kpi-dark .kpi-lbl{color:#94a3b8}
+.kpi-val{font-size:22px;font-weight:700;color:var(--text);line-height:1.1}
+.kpi-dark .kpi-val{color:#f1f5f9}
+.kpi-delta{font-size:11px;margin-top:3px;font-weight:500}
+.up{color:var(--red)}.dn{color:var(--green)}.nc{color:var(--muted)}
+
+/* NOTICE BAR */
+.notice{font-size:11px;background:var(--amber-lt);border:0.5px solid #fcd34d;border-radius:6px;padding:6px 10px;margin-bottom:10px;color:#78350f}
+.source-note{font-size:11px;color:var(--muted);margin-bottom:10px}
+
+/* TIER */
+.tier-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.tbtn{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);font-family:inherit}
+.tbtn.t0a{border-color:#86efac;color:var(--green);background:#f0fdf4}
+.tbtn.t1a{border-color:#fcd34d;color:var(--amber);background:var(--amber-lt)}
+.tbtn.t2a{border-color:#fb923c;color:var(--orange);background:var(--orange-lt)}
+.tbtn.t3a{border-color:#fca5a5;color:#be123c;background:#fff1f2}
+.tbtn.t4a{border-color:#f0abfc;color:#86198f;background:#fdf2f8}
+.tbtn.active{font-weight:700}
+.tbox{border-radius:var(--rl);padding:14px 16px;margin-bottom:12px;border:1.5px solid}
+.tbox.t0{background:#f0fdf4;border-color:#86efac}
+.tbox.t1{background:var(--amber-lt);border-color:#fcd34d}
+.tbox.t2{background:var(--orange-lt);border-color:#fb923c}
+.tbox.t3{background:#fff1f2;border-color:#fca5a5}
+.tbox.t4{background:#fdf2f8;border-color:#f0abfc}
+.tbox-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.tbox-title{font-size:14px;font-weight:700}
+.t0x{color:var(--green)}.t1x{color:var(--amber)}.t2x{color:var(--orange)}
+.t3x{color:#be123c}.t4x{color:#86198f}
+.tbox-desc{font-size:12px;margin-bottom:8px;line-height:1.6;opacity:.9}
+.badge-row{display:flex;flex-wrap:wrap;gap:5px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:400}
+.b-red{background:#fee2e2;color:#b91c1c}.b-orange{background:#ffedd5;color:var(--orange)}
+.b-purple{background:#f3e8ff;color:var(--purple)}.b-blue{background:var(--blue-lt);color:var(--blue)}
+.b-green{background:var(--green-lt);color:var(--green)}.b-gray{background:var(--gray-lt);color:var(--gray)}
+.b-active{background:var(--red);color:#fff}
+
+/* CARDS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px}
+.card-title{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.card-sub{font-size:11px;color:#ef4444;font-weight:400;text-transform:none;letter-spacing:0}
+.dl{list-style:none}
+.dl li{font-size:12px;color:var(--gray);padding:5px 0;display:flex;gap:7px;align-items:baseline;border-bottom:.5px solid #f3f4f6;line-height:1.5}
+.dl li:last-child{border-bottom:none}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.dr{background:#ef4444}.do{background:#f97316}.da{background:#f59e0b}
+.tl-row{display:flex;gap:10px;padding:8px 0;border-bottom:.5px solid #f3f4f6;align-items:flex-start}
+.tl-row:last-child{border-bottom:none}
+.tl-lbl{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;min-width:72px;text-align:center}
+.lbl-today{background:#ef4444;color:#fff}
+.lbl-week{background:#f97316;color:#fff}
+.lbl-month{background:#22c55e;color:#fff}
+.tl-text{font-size:12px;color:var(--gray);line-height:1.6}
+
+/* UPDATE PANEL */
+.upanel{background:var(--white);border:1.5px solid #93c5fd;border-radius:var(--rl);padding:16px 18px;margin-bottom:14px;display:none}
+.upanel.show{display:block}
+.upanel-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px}
+.fg-group{font-size:11px;font-weight:600;color:var(--muted);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.4px}
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:8px}
+.fg label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px;font-weight:500}
+.fg input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
+.fg input:focus{outline:none;border-color:#93c5fd}
+.wti-bar{background:#0f172a;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.wti-bar-lbl{font-size:11px;color:#94a3b8}
+.wti-bar-val{font-size:18px;font-weight:700;color:#60a5fa}
+.wti-bar-src{font-size:10px;color:#475569;margin-left:auto}
+
+/* HISTORY */
+.hs-ctrls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.hf{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);font-family:inherit}
+.hf.active{background:var(--blue-lt);border-color:#93c5fd;color:var(--blue)}
+.htable{width:100%;border-collapse:collapse;font-size:12px}
+.htable th{font-size:11px;font-weight:700;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);background:#fafafa;white-space:nowrap}
+.htable td{padding:7px 8px;border-bottom:.5px solid #f5f5f5;color:var(--gray);vertical-align:middle}
+.htable tr:hover td{background:#fafafa}
+.tp{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap}
+.tp0{background:#f0fdf4;color:var(--green)}.tp1{background:var(--amber-lt);color:var(--amber)}
+.tp2{background:var(--orange-lt);color:var(--orange)}.tp3{background:#fff1f2;color:#be123c}
+.tp4{background:#fdf2f8;color:#86198f}
+.ev{font-size:10px;padding:2px 7px;border-radius:8px;background:var(--blue-lt);color:var(--blue);font-family:monospace}
+.no-data{text-align:center;color:var(--muted);font-size:12px;padding:24px 0}
+
+/* TREND */
+.chart-wrap{position:relative;height:200px;margin-top:8px}
+
+/* MEASURES */
+.ctabs{display:flex;border-bottom:1.5px solid var(--border);margin-bottom:10px;overflow-x:auto}
+.ctab{font-size:12px;padding:7px 13px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.ctab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:10px}
+.mcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:14px 15px}
+.mcard-hdr{display:flex;gap:8px;margin-bottom:7px;align-items:flex-start}
+.mcard-icon{font-size:18px;flex-shrink:0}
+.mcard-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
+.mcard-desc{font-size:12px;color:#555;line-height:1.6;margin-bottom:4px}
+.mcard-ref{font-size:10px;color:#94a3b8;margin-bottom:7px}
+.imp-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+.imp-track{height:4px;background:#f1f5f9;border-radius:2px;margin-bottom:7px}
+.imp-fill{height:4px;border-radius:2px}
+.hi{background:#22c55e}.mi{background:#f59e0b}.li{background:#94a3b8}
+.mcard-ft{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tdots{display:flex;gap:3px;margin-left:auto}
+.tdot{width:7px;height:7px;border-radius:50%;opacity:.2}.tdot.on{opacity:1}
+.d0{background:#22c55e}.d1{background:#eab308}.d2{background:#f97316}.d3{background:#ef4444}.d4{background:#a855f7}
+.mtag{font-size:10px;padding:2px 7px;border-radius:10px}
+.tag-cp{background:var(--blue-lt);color:var(--blue)}.tag-nestle{background:var(--green-lt);color:var(--green)}
+.tag-betagro{background:#fef9c3;color:#854d0e}.tag-ptt{background:var(--orange-lt);color:var(--orange)}
+.tag-best{background:#f3e8ff;color:var(--purple)}.tag-office{background:#e0f2fe;color:#0369a1}
+.tag-factory{background:#fce7f3;color:#9d174d}.tag-all{background:var(--gray-lt);color:var(--gray)}
+
+/* BENCHMARK */
+.btable{width:100%;border-collapse:collapse;font-size:12px}
+.btable th{font-size:11px;font-weight:700;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);background:#fafafa}
+.btable td{padding:7px 8px;border-bottom:.5px solid #f5f5f5;color:var(--gray);vertical-align:top}
+.cy{color:var(--green);font-weight:600}.cp{color:#f59e0b}.cn{color:#d1d5db}
+
+/* REGION */
+.cgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:8px}
+@media(max-width:600px){.cgrid{grid-template-columns:repeat(3,1fr)}}
+.ccard{background:var(--gray-lt);border-radius:8px;padding:9px;text-align:center;border:1px solid var(--border)}
+.ccard.hl{background:#fee2e2;border-color:#ef4444}
+.ccard.prev{background:#f9fafb;opacity:.7}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:500px){.sgrid{grid-template-columns:repeat(2,1fr)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;background:#1e293b;color:#f1f5f9}
+.toast.show{opacity:1}
+
+.footer{text-align:center;padding:16px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:20px;line-height:1.9}
+@media print{.hdr{position:relative}.no-print{display:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">⛽ HR Oil Impact Dashboard</div>
+      <div class="hdr-sub" id="lastUpdateLbl">กำลังโหลด...</div>
+    </div>
+    <div class="hdr-right">
+      <span class="sdot" id="sdot"></span>
+      <span style="font-size:11px;background:var(--green-lt);color:var(--green);padding:3px 10px;border-radius:20px;border:.5px solid #86efac" id="wtiLiveBadge">WTI: —</span>
+      <button class="btn btn-blue no-print" onclick="openUpdatePanel()">✏️ อัปเดตราคา</button>
+      <button class="btn no-print" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn no-print" onclick="window.print()">🖨</button>
+    </div>
+  </div>
+  <div class="container" style="padding-top:0;padding-bottom:0">
+    <div class="nav">
+      <button class="ntab active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+      <button class="ntab" onclick="showTab('measures',this)">💡 Non-Monetary</button>
+      <button class="ntab" onclick="showTab('history',this)">📋 Evidence Log</button>
+      <button class="ntab" onclick="showTab('trend',this)">📈 แนวโน้ม</button>
+      <button class="ntab" onclick="showTab('region',this)">🌏 ภูมิภาค</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══ UPDATE PANEL ═══ -->
+<div class="upanel" id="updatePanel">
+  <div class="upanel-title">✏️ อัปเดตราคาน้ำมัน — กรอกจากเว็บ ปตท. ทุก 08:00 น.</div>
+  <div class="alert alert-info" style="margin-bottom:12px">
+    <div class="alert-icon">ℹ️</div>
+    <div class="alert-sub">
+      เช็กราคาจาก <a href="https://www.pttplc.com/th/Media-Center/Energy-information/Pages/OilPrice.aspx" target="_blank">pttplc.com</a>
+      หรือ <a href="http://gasprice.kapook.com" target="_blank">kapook.com/gasprice</a> |
+      WTI จาก <a href="https://finance.yahoo.com/quote/CL=F/" target="_blank">Yahoo Finance (CL=F)</a>
+    </div>
+  </div>
+  <div class="wti-bar">
+    <div><div class="wti-bar-lbl">WTI (ดึงอัตโนมัติ)</div><div class="wti-bar-val" id="wtiBarVal">—</div></div>
+    <div class="wti-bar-src" id="wtiBarSrc">—</div>
+    <button class="btn" style="background:transparent;color:#60a5fa;border-color:#334155;font-size:11px" onclick="fetchWTI()">⟳ โหลด WTI</button>
+  </div>
+  <div class="fg-group">น้ำมันดีเซล</div>
+  <div class="fg-grid">
+    <div class="fg"><label>🛢️ Diesel (฿) *</label><input type="number" id="f_diesel" step="0.01" placeholder="50.54"></div>
+    <div class="fg"><label>🛢️ Diesel B20 (฿) *</label><input type="number" id="f_b20" step="0.01" placeholder="45.54"></div>
+    <div class="fg"><label>🛢️ Super Power Diesel (฿)</label><input type="number" id="f_spd" step="0.01" placeholder="70.44"></div>
+  </div>
+  <div class="fg-group">แก๊สโซฮอล์ / เบนซิน</div>
+  <div class="fg-grid">
+    <div class="fg"><label>⛽ Gasohol 95 (฿) *</label><input type="number" id="f_g95" step="0.01" placeholder="43.95"></div>
+    <div class="fg"><label>⛽ Gasohol 91 (฿)</label><input type="number" id="f_g91" step="0.01" placeholder="43.58"></div>
+    <div class="fg"><label>🌿 E20 (฿)</label><input type="number" id="f_e20" step="0.01" placeholder="38.95"></div>
+    <div class="fg"><label>🌿 E85 (฿) *</label><input type="number" id="f_e85" step="0.01" placeholder="34.89"></div>
+    <div class="fg"><label>⛽ Super Power G95 (฿)</label><input type="number" id="f_spg" step="0.01" placeholder="53.04"></div>
+  </div>
+  <div class="fg-group">อื่นๆ</div>
+  <div class="fg-grid">
+    <div class="fg"><label>🌍 WTI (USD/bbl)</label><input type="number" id="f_wti" step="0.01" placeholder="105.15"></div>
+    <div class="fg"><label>📝 แหล่งข้อมูล</label><input type="text" id="f_src" placeholder="PTT Station 08:00 น."></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+    <button class="btn btn-blue" onclick="saveUpdate()">💾 บันทึก</button>
+    <button class="btn" onclick="closeUpdatePanel()">ยกเลิก</button>
+    <span style="font-size:11px;color:var(--muted)">* จำเป็นต้องกรอก</span>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="tab-dashboard" class="sec active">
+
+  <div class="alert alert-crisis" id="crisisAlert" style="margin-top:14px">
+    <div class="alert-icon">🚨</div>
+    <div>
+      <div class="alert-title" id="crisisTitle">กำลังโหลด...</div>
+      <div class="alert-sub" id="crisisSub"></div>
+    </div>
+  </div>
+
+  <!-- KPI ROW 1: ดีเซล -->
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi kpi-hl">
+      <div class="kpi-lbl">ดีเซล DIESEL (฿)</div>
+      <div class="kpi-val" id="v_diesel">—</div>
+      <div class="kpi-delta" id="d_diesel"></div>
+    </div>
+    <div class="kpi kpi-hl">
+      <div class="kpi-lbl">ดีเซล B20 (฿)</div>
+      <div class="kpi-val" id="v_b20">—</div>
+      <div class="kpi-delta" id="d_b20"></div>
+    </div>
+    <div class="kpi kpi-sp">
+      <div class="kpi-lbl">ซูเปอร์พาวเวอร์ Diesel (฿)</div>
+      <div class="kpi-val" id="v_spd">—</div>
+      <div class="kpi-delta" id="d_spd"></div>
+    </div>
+  </div>
+
+  <!-- KPI ROW 2: แก๊สโซฮอล์ -->
+  <div class="kpi-row kpi-row-4">
+    <div class="kpi">
+      <div class="kpi-lbl">Gasohol 95 (฿)</div>
+      <div class="kpi-val" id="v_g95">—</div>
+      <div class="kpi-delta" id="d_g95"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Gasohol 91 (฿)</div>
+      <div class="kpi-val" id="v_g91">—</div>
+      <div class="kpi-delta" id="d_g91"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">E20 (฿)</div>
+      <div class="kpi-val" id="v_e20">—</div>
+      <div class="kpi-delta" id="d_e20"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">E85 (฿)</div>
+      <div class="kpi-val" id="v_e85">—</div>
+      <div class="kpi-delta" id="d_e85"></div>
+    </div>
+  </div>
+
+  <!-- KPI ROW 3: SP G95 + WTI + Tier -->
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi">
+      <div class="kpi-lbl">ซูเปอร์พาวเวอร์ G95 (฿)</div>
+      <div class="kpi-val" id="v_spg">—</div>
+      <div class="kpi-delta" id="d_spg"></div>
+    </div>
+    <div class="kpi kpi-dark">
+      <div class="kpi-lbl">WTI Crude (USD/bbl)</div>
+      <div class="kpi-val" id="v_wti">—</div>
+      <div class="kpi-delta" id="d_wti"></div>
+    </div>
+    <div class="kpi kpi-tier">
+      <div class="kpi-lbl">Active Tier</div>
+      <div class="kpi-val" id="v_tier">TIER —</div>
+      <div class="kpi-delta" id="d_tier">—</div>
+    </div>
+  </div>
+
+  <div class="notice" id="noticeBar"></div>
+  <div class="source-note" id="sourceNote"></div>
+
+  <div class="tier-sel" id="tierSel"></div>
+
+  <div class="tbox t3" id="tierBox">
+    <div class="tbox-hdr">
+      <span id="tierIcon" style="font-size:18px">🔥</span>
+      <span class="tbox-title t3x" id="tierTitle">TIER 3</span>
+      <span class="badge b-active" style="font-size:10px" id="tierActiveLbl">ACTIVE NOW</span>
+    </div>
+    <div class="tbox-desc t3x" id="tierDesc"></div>
+    <div class="badge-row" id="tierBadges"></div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">มาตรการแยกกลุ่มพนักงาน</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">🏢 ออฟฟิศ <span class="card-sub">— ดำเนินการภายใน 48 ชม.</span></div>
+      <ul class="dl" id="officeList"></ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🏭 โรงงาน <span class="card-sub">— ดำเนินการภายใน 48 ชม.</span></div>
+      <ul class="dl" id="factoryList"></ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Action Timeline</div>
+    <div class="tl-row"><div class="tl-lbl lbl-today">วันนี้</div><div class="tl-text" id="tlToday"></div></div>
+    <div class="tl-row"><div class="tl-lbl lbl-week">สัปดาห์นี้</div><div class="tl-text" id="tlWeek"></div></div>
+    <div class="tl-row"><div class="tl-lbl lbl-month">เดือนนี้</div><div class="tl-text" id="tlMonth"></div></div>
+  </div>
+</div><!-- /dashboard -->
+
+<!-- ═══ NON-MONETARY ═══ -->
+<div id="tab-measures" class="sec">
+  <div style="margin:14px 0 10px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:2px">มาตรการ Non-Monetary</div>
+    <div style="font-size:12px;color:var(--muted)">24 มาตรการ | CPF · Nestlé · Betagro · ปตท.</div>
+  </div>
+  <div class="ctabs" id="catTabs">
+    <button class="ctab active" onclick="setCat('all',this)">ทั้งหมด (24)</button>
+    <button class="ctab" onclick="setCat('time',this)">⏱ บริหารเวลา</button>
+    <button class="ctab" onclick="setCat('wellbeing',this)">❤️ Well-being</button>
+    <button class="ctab" onclick="setCat('food',this)">🍱 อาหาร</button>
+    <button class="ctab" onclick="setCat('skill',this)">📚 ทักษะ</button>
+    <button class="ctab" onclick="setCat('community',this)">🤝 ชุมชน</button>
+    <button class="ctab" onclick="setCat('green',this)">🌿 Green</button>
+  </div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+    <span style="font-size:11px;color:var(--muted)">Tier:</span>
+    <button class="tbtn active" onclick="setTf('all',this)" style="border-color:#cbd5e1;color:#475569;background:#f8fafc">ทุก Tier</button>
+    <button class="tbtn t0a" onclick="setTf('0',this)">T0</button>
+    <button class="tbtn t1a" onclick="setTf('1',this)">T1</button>
+    <button class="tbtn t2a" onclick="setTf('2',this)">T2</button>
+    <button class="tbtn t3a" onclick="setTf('3',this)">T3</button>
+    <button class="tbtn t4a" onclick="setTf('4',this)">T4</button>
+  </div>
+  <div class="mgrid" id="mgrid"></div>
+  <div class="card" style="margin-top:14px;overflow-x:auto">
+    <div class="card-title">Benchmark — บริษัทชั้นนำไทย</div>
+    <table class="btable">
+      <thead><tr><th>มาตรการ</th><th>CPF</th><th>Nestlé</th><th>Betagro</th><th>ปตท.</th><th>หมายเหตุ</th></tr></thead>
+      <tbody>
+        <tr><td>Compressed Work Week</td><td><span class="cp">◑</span></td><td><span class="cy">✓</span></td><td><span class="cn">—</span></td><td><span class="cp">◑</span></td><td>ฟิลิปปินส์ภาครัฐใช้แล้ว 2026</td></tr>
+        <tr><td>Flexible Hours</td><td><span class="cy">✓</span></td><td><span class="cy">✓ Nestlé Roadmap 2025</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td>ลด Rush Hour Commute</td></tr>
+        <tr><td>Canteen อุดหนุน</td><td><span class="cy">✓ ทุกโรงงาน</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td>ลดค่าอาหารนอกบ้าน</td></tr>
+        <tr><td>Well-being App / EAP</td><td><span class="cp">◑</span></td><td><span class="cy">✓ Headspace+Spring Health</span></td><td><span class="cn">—</span></td><td><span class="cp">◑</span></td><td>Nestlé USA เป็น leader</td></tr>
+        <tr><td>EV / Bike Incentive</td><td><span class="cp">◑ SAIC-MG</span></td><td><span class="cy">✓ Green Mobility</span></td><td><span class="cn">—</span></td><td><span class="cy">✓ EV Station</span></td><td>ปตท. EV Charging ฟรี</td></tr>
+        <tr><td>Employee Product Discount</td><td><span class="cy">✓ CP, Five Star</span></td><td><span class="cy">✓ Nestlé products</span></td><td><span class="cy">✓</span></td><td><span class="cp">◑</span></td><td>ลดค่าครองชีพทางอ้อม</td></tr>
+        <tr><td>Company Housing</td><td><span class="cy">✓ Worker Housing</span></td><td><span class="cp">◑</span></td><td><span class="cy">✓ Dormitory</span></td><td><span class="cn">—</span></td><td>ลดเดินทางระยะไกล</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ HISTORY ═══ -->
+<div id="tab-history" class="sec">
+  <div class="card" style="margin-top:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700">📋 Evidence Log</div>
+      <div class="hs-ctrls">
+        <button class="hf active" onclick="setHf('all',this)">ทั้งหมด</button>
+        <button class="hf" onclick="setHf('3',this)">Tier 3+</button>
+        <button class="hf" onclick="setHf('4',this)">Tier 4</button>
+        <button class="btn no-print" onclick="exportCSV()">⬇ CSV</button>
+        <button class="btn no-print" style="color:var(--red)" onclick="clearHist()">🗑 ล้าง</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto" id="histWrap"><div class="no-data">กด "อัปเดตราคา" เพื่อบันทึกข้อมูล</div></div>
+  </div>
+</div>
+
+<!-- ═══ TREND ═══ -->
+<div id="tab-trend" class="sec">
+  <div class="card" style="margin-top:14px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:2px">📈 แนวโน้มราคาน้ำมัน</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">🔴 ดีเซล | 🟦 B20 | 🔵 WTI÷3</div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="no-data" id="trendEmpty" style="display:none">ต้องการข้อมูลอย่างน้อย 2 วัน</div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">สรุปสถิติ</div>
+    <div class="sgrid" id="sgrid"><div class="no-data" style="grid-column:1/-1">รอข้อมูล...</div></div>
+  </div>
+</div>
+
+<!-- ═══ REGION ═══ -->
+<div id="tab-region" class="sec">
+  <div class="card" style="margin-top:14px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:2px">ราคาเชื้อเพลิงเปรียบเทียบภูมิภาค</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">GlobalPetrolPrices.com (30 มี.ค. 2569) | EPPO Thailand</div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:6px">ดีเซล (USD/ลิตร)</div>
+    <div class="cgrid">
+      <div class="ccard prev"><div style="font-size:18px">🇹🇭</div><div style="font-size:10px;color:var(--muted)">ไทย (ก่อน)</div><div style="font-size:14px;font-weight:700;color:var(--muted)">฿47.74</div></div>
+      <div class="ccard hl"><div style="font-size:18px">🇹🇭</div><div style="font-size:10px;color:var(--red)">ไทย (ล่าสุด) ★</div><div style="font-size:14px;font-weight:700;color:var(--red)" id="regDieselTH">฿50.54</div><div style="font-size:10px;color:var(--red)">+฿2.80</div></div>
+      <div class="ccard"><div style="font-size:18px">🇻🇳</div><div style="font-size:10px;color:var(--muted)">เวียดนาม</div><div style="font-size:14px;font-weight:700">฿26.50</div><div style="font-size:10px;color:var(--muted)">$1.04/L</div></div>
+      <div class="ccard"><div style="font-size:18px">🇮🇩</div><div style="font-size:10px;color:var(--muted)">อินโดฯ</div><div style="font-size:14px;font-weight:700">฿22.40</div><div style="font-size:10px;color:var(--green)">อุดหนุน</div></div>
+      <div class="ccard"><div style="font-size:18px">🇰🇭</div><div style="font-size:10px;color:var(--muted)">กัมพูชา</div><div style="font-size:14px;font-weight:700">฿33.70</div><div style="font-size:10px;color:var(--muted)">$1.29/L</div></div>
+      <div class="ccard"><div style="font-size:18px">🇨🇳</div><div style="font-size:10px;color:var(--muted)">จีน</div><div style="font-size:14px;font-weight:700">฿27.60</div><div style="font-size:10px;color:var(--muted)">$1.06/L</div></div>
+    </div>
+    <div style="margin-top:10px;background:var(--amber-lt);border:.5px solid #fcd34d;border-radius:8px;padding:10px 12px;font-size:11px;color:#78350f;line-height:1.8">
+      <strong>บริบทวิกฤต 2569:</strong> US-Israel-Iran ปิดช่องแคบ Hormuz · WTI ~$105/bbl · ไทยปรับดีเซล +฿2.80 (5 เม.ย.) · ค่าเดินทางพนักงานเพิ่ม ~42%
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  <strong>แหล่งข้อมูล:</strong> PTT Station · Kapook GasPrice · GlobalPetrolPrices.com · Yahoo Finance (WTI) · EPPO Thailand<br>
+  <strong>Benchmark:</strong> CPF · Nestlé Roadmap 2025 · Betagro · ปตท. HR Policy<br>
+  <em>อัปเดตราคาน้ำมันไทยทุก 08:00 น. | WTI ดึงอัตโนมัติ | ประวัติเก็บใน localStorage</em>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── TIER CONFIG ────────────────────────────────────────────────
+const TIER_CFG = [
+  { cls:'t0', icon:'✅', tx:'t0x', label:'T0 ปกติ (ต่ำกว่า 40)',
+    title:'TIER 0 — ปกติ (ดีเซล < ฿40)',
+    desc:'ราคาดีเซลอยู่ในระดับปกติ ไม่มีมาตรการพิเศษ',
+    badges:[{t:'ติดตามรายสัปดาห์',c:'b-gray'},{t:'ไม่มีมาตรการพิเศษ',c:'b-green'}],
+    office:['ค่าเดินทางตามนโยบายปกติ','WFH ตามนโยบายเดิม (optional)','เตรียม contingency plan','ติดตาม Tier 1 ล่วงหน้า'],
+    factory:['รถรับส่งตามปกติ','ค่าเดินทางตามระเบียบ','ไม่มีมาตรการพิเศษ','แจ้งตารางรถล่วงหน้า'],
+    today:'ติดตามราคาน้ำมันรายสัปดาห์',week:'ทบทวน policy ค่าเดินทาง',month:'วางแผนงบ Tier 1' },
+
+  { cls:'t1', icon:'👁', tx:'t1x', label:'T1 เฝ้าระวัง (40-44.99)',
+    title:'TIER 1 — เฝ้าระวัง (฿40.00–44.99)',
+    desc:'ต้นทุนการขนส่งเริ่มปรับสูง ผู้บริโภคเริ่มตระหนักถึงราคาน้ำมัน',
+    badges:[{t:'+10% ค่าเดินทาง',c:'b-orange'},{t:'WFH 1 วัน/สัปดาห์',c:'b-blue'},{t:'Car Pool',c:'b-gray'}],
+    office:['ค่าเดินทาง +10%','WFH 1 วัน/สัปดาห์','ส่งเสริม Car Pool','ลดประชุม On-site'],
+    factory:['Shuttle เพิ่มรอบเย็น','ค่าเดินทาง +10%','Car Pool incentive ฿200/เดือน','แจ้งตาราง 1 สัปดาห์ล่วงหน้า'],
+    today:'ประกาศ Tier 1 · เพิ่มค่าเดินทาง 10%',week:'จัด Car Pool · สำรวจ Shuttle',month:'ประเมิน budget · วางแผน Tier 2' },
+
+  { cls:'t2', icon:'⚠️', tx:'t2x', label:'T2 ปานกลาง (45-49.99)',
+    title:'TIER 2 — ผลกระทบปานกลาง (฿45.00–49.99)',
+    desc:'ต้นทุนการผลิตและบริการปรับสูงอย่างชัดเจน ส่งผลต่อราคาสินค้าอุปโภคบริโภค ภาคธุรกิจและประชาชนได้รับผลกระทบเป็นวงกว้าง',
+    badges:[{t:'+25% ค่าเดินทาง',c:'b-orange'},{t:'WFH 2 วัน/สัปดาห์',c:'b-blue'},{t:'Shuttle เพิ่ม',c:'b-purple'},{t:'HR Task Force',c:'b-red'}],
+    office:['ค่าเดินทาง +25% · WFH 2 วัน/สัปดาห์','WFH Allowance ฿300/เดือน','ยกเลิกประชุม On-site','Car Pool ภาคบังคับ'],
+    factory:['Shuttle ทุก Shift','Fuel Voucher ฿500/เดือน','ค่าอาหาร +15%','ทบทวน Shift ลด Commute'],
+    today:'ประกาศ Tier 2 · เพิ่มค่าเดินทาง 25%',week:'HR Task Force · สำรวจผลกระทบ',month:'COL Adjustment · ประสาน Payroll' },
+
+  { cls:'t3', icon:'🔥', tx:'t3x', label:'T3 ผลกระทบสูง (50-54.99)',
+    title:'TIER 3 — ผลกระทบสูง (฿50.00–54.99)',
+    desc:'อาจเกิดการชะลอตัวของกิจกรรมทางเศรษฐกิจ ต้นทุนการขนส่งกลายเป็นแรงกดดันสำคัญต่อผู้ประกอบการ ภาครัฐอาจต้องพิจารณามาตรการช่วยเหลือเพิ่มเติม',
+    badges:[{t:'เปิดใช้ทันที',c:'b-red'},{t:'+1,200 บ./เดือน',c:'b-orange'},{t:'WFH 3 วัน',c:'b-blue'},{t:'Fuel Voucher',c:'b-purple'},{t:'เงินกู้ 0% ≤12,000',c:'b-gray'}],
+    office:['WFH 3 วัน/สัปดาห์ทันที','ค่าเดินทาง 2,500 บาท/เดือน','WFH Allowance 400 บาท/เดือน','ยกเลิกประชุม On-site','COL Adjustment 2 สัปดาห์','เงินกู้ 0% ≤12,000 บาท'],
+    factory:['Shuttle ฟรีทุกเส้นทาง','Fuel Voucher 700 บาท/เดือน','ค่าอาหาร +20%','ปรับ Shift ลด Commute','Compressed Week พิจารณา','เงินกู้ 0% ≤10,000 บาท'],
+    today:'แจ้งพนักงาน · WFH วิกฤต · เตรียมเงินกู้',week:'HR Task Force · budget · เจรจารถ',month:'COL Adjustment · ฝ่ายการเงิน · สมาคมฯ' },
+
+  { cls:'t4', icon:'🚨', tx:'t4x', label:'T4 วิกฤต (55 ขึ้นไป)',
+    title:'TIER 4 — วิกฤต (฿55.00 ขึ้นไป)',
+    desc:'เกิดผลกระทบรุนแรงต่อค่าครองชีพและเศรษฐกิจ อาจนำไปสู่ภาวะ Stagflation (เศรษฐกิจชะลอตัวควบคู่กับเงินเฟ้อสูง)',
+    badges:[{t:'ฉุกเฉินสูงสุด',c:'b-active'},{t:'+1,500 บ./เดือน',c:'b-red'},{t:'WFH 4 วัน',c:'b-blue'},{t:'Fuel Voucher',c:'b-purple'},{t:'Emergency COL',c:'b-orange'},{t:'เงินกู้ 0% ≤15,000',c:'b-gray'}],
+    office:['WFH 4 วัน/สัปดาห์ทันที','ค่าเดินทาง 3,000 บาท/เดือน','WFH Allowance 500 บาท/เดือน','ยกเลิกประชุม On-site ทุกกรณี','Emergency COL Adjustment','เงินกู้ 0% ≤15,000 บาท'],
+    factory:['Shuttle ฟรีทุกเส้นทาง 100%','Fuel Voucher 800 บาท/เดือน','ค่าอาหาร +25%','ปรับ Shift ลด Commute สูงสุด','Compressed Week บังคับ','เงินกู้ 0% ≤10,000 บาท'],
+    today:'แจ้งพนักงานทุกคน · Full Remote · จองรถ · เตรียมเงินกู้',week:'HR Task Force ทุกสัปดาห์ · Emergency budget',month:'Emergency COL · Board · สมาคมฯ · วางแผน 12 เดือน' }
+];
+
+// ─── PRICE DATA (5 วัน ปตท. จากภาพอย่างเป็นทางการ) ─────────────
+// ข้อมูลทุก field ตรงตามตาราง 1–5 เม.ย. 2569
+const PRICE_HISTORY = [
+  { dateKey:'2026-04-01', dateLabel:'1 เมษายน 2569', time:'05:00 น.',
+    diesel:46.44, b20:41.44, g95:43.95, g91:43.58, e20:38.95, e85:34.89,
+    spd:63.94, spg:53.04, benzin:52.54, wti:100.12,
+    diesel_p:46.44, b20_p:41.44, g95_p:43.95, g91_p:43.58,
+    e20_p:38.95,   e85_p:34.89, spd_p:63.94, spg_p:53.04, wti_p:100.12,
+    source:'PTT Station อย่างเป็นทางการ' },
+  { dateKey:'2026-04-02', dateLabel:'2 เมษายน 2569', time:'05:00 น.',
+    diesel:47.74, b20:42.74, g95:43.95, g91:43.58, e20:38.95, e85:34.89,
+    spd:63.94, spg:53.04, benzin:52.54, wti:102.50,
+    diesel_p:46.44, b20_p:41.44, g95_p:43.95, g91_p:43.58,
+    e20_p:38.95,   e85_p:34.89, spd_p:63.94, spg_p:53.04, wti_p:100.12,
+    source:'PTT Station อย่างเป็นทางการ' },
+  { dateKey:'2026-04-03', dateLabel:'3 เมษายน 2569', time:'05:00 น.',
+    diesel:47.74, b20:42.74, g95:43.95, g91:43.58, e20:38.95, e85:34.89,
+    spd:63.94, spg:53.04, benzin:52.54, wti:103.80,
+    diesel_p:47.74, b20_p:42.74, g95_p:43.95, g91_p:43.58,
+    e20_p:38.95,   e85_p:34.89, spd_p:63.94, spg_p:53.04, wti_p:102.50,
+    source:'PTT Station อย่างเป็นทางการ' },
+  { dateKey:'2026-04-04', dateLabel:'4 เมษายน 2569', time:'05:00 น.',
+    diesel:47.74, b20:42.74, g95:43.95, g91:43.58, e20:38.95, e85:34.89,
+    spd:63.94, spg:53.04, benzin:52.54, wti:104.60,
+    diesel_p:47.74, b20_p:42.74, g95_p:43.95, g91_p:43.58,
+    e20_p:38.95,   e85_p:34.89, spd_p:63.94, spg_p:53.04, wti_p:103.80,
+    source:'PTT Station อย่างเป็นทางการ' },
+  { dateKey:'2026-04-05', dateLabel:'5 เมษายน 2569', time:'05:00 น.',
+    diesel:50.54, b20:45.54, g95:43.95, g91:43.58, e20:38.95, e85:34.89,
+    spd:70.44, spg:53.04, benzin:52.54, wti:105.15,
+    diesel_p:47.74, b20_p:42.74, g95_p:43.95, g91_p:43.58,
+    e20_p:38.95,   e85_p:34.89, spd_p:63.94, spg_p:53.04, wti_p:104.60,
+    source:'PTT Station อย่างเป็นทางการ | มีผลบังคับใช้ 5 เม.ย. 2569 หลัง 05:00 น.' }
+];
+
+// ─── NON-MONETARY MEASURES ───────────────────────────────────────
+const MEASURES = [
+  {cat:'time',icon:'📅',title:'Compressed Work Week 4 วัน',desc:'ทำงาน 4 วัน/สัปดาห์ ชั่วโมงเท่าเดิม ลด Commute 1 วัน ประหยัดน้ำมัน ~20%',ref:'Ref: ฟิลิปปินส์ภาครัฐ 2026 / Nestlé',tags:['tag-nestle','tag-office'],tiers:[0,0,1,1,1],impact:90,ic:'hi'},
+  {cat:'time',icon:'⏰',title:'Staggered / Flexible Hours',desc:'เลื่อนเวลาเข้า-ออกได้ ±2 ชม. หลีกเลี่ยง Rush Hour',ref:'Ref: CPF, Nestlé Roadmap 2025, ปตท.',tags:['tag-cp','tag-nestle','tag-all'],tiers:[1,1,1,1,1],impact:80,ic:'hi'},
+  {cat:'time',icon:'🔄',title:'Shift Rotation ลด Commute',desc:'3 กะ → 2 กะยาว (12 ชม.) สลับวัน ลดการเดินทาง 40–50%',ref:'Ref: Betagro, CPF โรงงาน',tags:['tag-cp','tag-betagro','tag-factory'],tiers:[0,0,1,1,1],impact:85,ic:'hi'},
+  {cat:'time',icon:'🏠',title:'Virtual-First Meeting Policy',desc:'ประชุม Virtual เป็น default On-site ≤ 2 ครั้ง/เดือน ลด Business Trip',ref:'Ref: Nestlé Global, ปตท. Work Smart',tags:['tag-nestle','tag-ptt','tag-office'],tiers:[0,1,1,1,1],impact:75,ic:'hi'},
+  {cat:'time',icon:'🌙',title:'Night Shift Carpool',desc:'จัดรถร่วม Night Shift ลดค่าน้ำมัน 50%',ref:'Ref: CPF โรงงานอาหาร',tags:['tag-cp','tag-factory'],tiers:[0,1,1,1,1],impact:70,ic:'mi'},
+  {cat:'wellbeing',icon:'🧠',title:'Mental Health EAP',desc:'สายด่วนคำปรึกษาฟรี 24 ชม. รองรับความเครียดจากค่าครองชีพ',ref:'Ref: Nestlé USA (Headspace+Spring Health)',tags:['tag-nestle','tag-best','tag-all'],tiers:[0,0,1,1,1],impact:85,ic:'hi'},
+  {cat:'wellbeing',icon:'🏥',title:'On-site Clinic & Telehealth',desc:'คลินิกในโรงงาน/ออฟฟิศ + Telehealth ลดค่ารักษาและการเดินทาง',ref:'Ref: CPF, Betagro, ปตท. Medical Center',tags:['tag-cp','tag-betagro','tag-ptt','tag-all'],tiers:[1,1,1,1,1],impact:80,ic:'hi'},
+  {cat:'wellbeing',icon:'💪',title:'Lifestyle Spending Account',desc:'฿3,000–5,000/ปี ใช้ได้อิสระ fitness สุขภาพจิต ค่าเดินทาง',ref:'Ref: Nestlé USA $500/ปี',tags:['tag-nestle','tag-best','tag-all'],tiers:[0,1,1,1,1],impact:75,ic:'mi'},
+  {cat:'wellbeing',icon:'😴',title:'Extra Leave / Recharge Day',desc:'1–2 วัน/ไตรมาส เฉพาะ Tier 3–4 เพื่อ recharge',ref:'Ref: Unilever "Recharge Leave"',tags:['tag-best','tag-office'],tiers:[0,0,0,1,1],impact:65,ic:'mi'},
+  {cat:'food',icon:'🍱',title:'อุดหนุนโรงอาหาร 25–50%',desc:'ลดราคาโรงอาหาร 25–50% ลดค่าครองชีพ ~฿15–20/มื้อ',ref:'Ref: CPF, Betagro, Nestlé Healthy Life',tags:['tag-cp','tag-betagro','tag-nestle','tag-all'],tiers:[0,1,1,1,1],impact:90,ic:'hi'},
+  {cat:'food',icon:'🛒',title:'Employee Product Discount',desc:'ส่วนลด 30–50% สินค้าบริษัท + Hamper รายไตรมาส',ref:'Ref: CPF (Five Star), Nestlé, Betagro',tags:['tag-cp','tag-nestle','tag-betagro','tag-all'],tiers:[0,1,1,1,1],impact:80,ic:'hi'},
+  {cat:'food',icon:'🥬',title:'Community Garden',desc:'พื้นที่ปลูกผักสมุนไพรในโรงงาน ให้พนักงานนำกลับบ้าน',ref:'Ref: Nestlé Healthy Life Days, CPF',tags:['tag-nestle','tag-cp','tag-factory'],tiers:[0,0,1,1,1],impact:55,ic:'li'},
+  {cat:'food',icon:'🧴',title:'ร้านค้าสวัสดิการราคาทุน',desc:'สินค้าจำเป็น (น้ำมันพืช ข้าว) ราคาทุน หักบัญชีเงินเดือน',ref:'Ref: ปตท. Co-op Store, Betagro',tags:['tag-ptt','tag-betagro','tag-factory'],tiers:[0,0,1,1,1],impact:70,ic:'mi'},
+  {cat:'skill',icon:'📱',title:'Upskilling ในเวลางาน',desc:'2 ชม./สัปดาห์ Online Learning (Coursera, LinkedIn, CPF Academy)',ref:'Ref: Nestlé Learning Hub, CPF Academy',tags:['tag-nestle','tag-cp','tag-ptt','tag-office'],tiers:[1,1,1,1,1],impact:70,ic:'mi'},
+  {cat:'skill',icon:'🔧',title:'Cross-Train หลายหน้าที่',desc:'ลดโยกย้ายคนระหว่างโรงงาน ลดต้นทุนบริหาร',ref:'Ref: CPF, Betagro Smart Factory',tags:['tag-cp','tag-betagro','tag-factory'],tiers:[1,1,1,1,1],impact:65,ic:'mi'},
+  {cat:'skill',icon:'🎯',title:'EV & Eco-Driving Training',desc:'อบรมขับรถประหยัดน้ำมัน + รู้จัก EV ลดค่าน้ำมัน 10–15%',ref:'Ref: ปตท. EV Awareness, Nestlé Green Drive',tags:['tag-ptt','tag-nestle','tag-all'],tiers:[0,1,1,1,1],impact:60,ic:'mi'},
+  {cat:'skill',icon:'💡',title:'Financial Literacy Workshop',desc:'วางแผนการเงิน บริหารรายจ่ายวิกฤต ออมฉุกเฉิน',ref:'Ref: CPF Well-being, Nestlé Financial',tags:['tag-cp','tag-nestle','tag-all'],tiers:[0,1,1,1,1],impact:65,ic:'mi'},
+  {cat:'community',icon:'👨‍👩‍👧',title:'Family Day',desc:'Family Day 1 วัน/เดือน นำบุตรมาได้ ลดค่าฝากเลี้ยง',ref:'Ref: Nestlé Working Parents, CPF',tags:['tag-nestle','tag-cp','tag-office'],tiers:[0,0,1,1,1],impact:55,ic:'li'},
+  {cat:'community',icon:'🏫',title:'Shuttle ผ่านโรงเรียน',desc:'เส้นทาง Shuttle ผ่านโรงเรียน/Day Care ส่งลูกได้โดยไม่ใช้รถส่วนตัว',ref:'Ref: CPF, Betagro',tags:['tag-cp','tag-betagro','tag-factory'],tiers:[0,0,1,1,1],impact:75,ic:'mi'},
+  {cat:'community',icon:'🏘️',title:'หอพักพนักงาน',desc:'ขยายหอพักหรืออุดหนุนค่าหอพักใกล้โรงงาน',ref:'Ref: CPF Worker Housing, Betagro Dormitory',tags:['tag-cp','tag-betagro','tag-factory'],tiers:[0,0,0,1,1],impact:85,ic:'hi'},
+  {cat:'community',icon:'🤲',title:'Peer Support / Buddy',desc:'กลุ่ม Buddy ช่วยกัน Carpool แชร์ข้อมูล ลดความเครียด',ref:'Ref: CPF, Nestlé Inclusive Culture',tags:['tag-cp','tag-nestle','tag-all'],tiers:[1,1,1,1,1],impact:50,ic:'li'},
+  {cat:'green',icon:'⚡',title:'EV Charging ฟรี',desc:'จุดชาร์จ EV ในที่จอดรถ บริการฟรีพนักงาน',ref:'Ref: ปตท. EV Network, Nestlé Green Fleet',tags:['tag-ptt','tag-nestle','tag-office'],tiers:[1,1,1,1,1],impact:70,ic:'mi'},
+  {cat:'green',icon:'🚲',title:'E-Bike Subsidy',desc:'อุดหนุน 30–50% ราคา E-Bike สำหรับพนักงาน ≤ 15 กม.',ref:'Ref: Unilever Bike Program, ปตท.',tags:['tag-ptt','tag-best','tag-all'],tiers:[0,1,1,1,1],impact:60,ic:'mi'},
+  {cat:'green',icon:'🚌',title:'MRT/BTS Commuter Pass',desc:'Commuter Pass ราคาพิเศษพนักงานในรัศมีสถานี',ref:'Ref: Nestlé Thailand, ปตท. HQ',tags:['tag-nestle','tag-ptt','tag-office'],tiers:[0,1,1,1,1],impact:75,ic:'hi'}
+];
+
+// ─── STATE ────────────────────────────────────────────────────────
+const SK = 'hr_oil_v5';
+let histData = [];
+let histFilter = 'all';
+let activeTier = 3;
+let curPrice = null;
+let currentCat = 'all';
+let currentTf = 'all';
+let trendChartInst = null;
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function getTier(d) {
+  if (d < 40) return 0;
+  if (d < 45) return 1;
+  if (d < 50) return 2;
+  if (d < 55) return 3;
+  return 4;
+}
+
+function numFmt(v) {
+  return (v !== undefined && v !== null && v !== 0) ? Number(v).toFixed(2) : null;
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── RENDER KPIs ─────────────────────────────────────────────────
+// id prefix: v_ = value, d_ = delta
+function renderKPI(valId, val, prev) {
+  const vEl = document.getElementById('v_' + valId);
+  const dEl = document.getElementById('d_' + valId);
+  if (!vEl) return;
+
+  const n = numFmt(val);
+  vEl.textContent = n !== null ? n : '—';
+
+  if (!dEl) return;
+  if (n === null) { dEl.innerHTML = ''; return; }
+
+  const p = numFmt(prev);
+  if (p === null || Number(val) === Number(prev)) {
+    dEl.innerHTML = '<span class="nc">— ไม่เปลี่ยนแปลง</span>';
+    return;
+  }
+  const diff = Number((val - prev).toFixed(2));
+  dEl.innerHTML = `<span class="${diff > 0 ? 'up' : 'dn'}">${diff > 0 ? '▲' : '▼'} ${Math.abs(diff).toFixed(2)} ฿ จาก ${p}</span>`;
+}
+
+function renderAllKPIs(p) {
+  renderKPI('diesel', p.diesel, p.diesel_p);
+  renderKPI('b20',    p.b20,    p.b20_p);
+  renderKPI('spd',    p.spd,    p.spd_p);
+  renderKPI('g95',    p.g95,    p.g95_p);
+  renderKPI('g91',    p.g91,    p.g91_p);
+  renderKPI('e20',    p.e20,    p.e20_p);
+  renderKPI('e85',    p.e85,    p.e85_p);
+  renderKPI('spg',    p.spg,    p.spg_p);
+
+  // WTI
+  const vWti = document.getElementById('v_wti');
+  const dWti = document.getElementById('d_wti');
+  if (vWti) vWti.textContent = p.wti ? '$' + p.wti.toFixed(2) : '—';
+  if (dWti && p.wti && p.wti_p) {
+    const wd = Number((p.wti - p.wti_p).toFixed(2));
+    dWti.innerHTML = `<span class="${wd > 0 ? 'up' : 'dn'}">${wd > 0 ? '▲' : '▼'} ${Math.abs(wd).toFixed(2)} USD</span>`;
+  }
+
+  // Tier KPI
+  const t = getTier(p.diesel);
+  const tc = TIER_CFG[t];
+  const vTier = document.getElementById('v_tier');
+  const dTier = document.getElementById('d_tier');
+  if (vTier) { vTier.textContent = 'TIER ' + t; vTier.className = 'kpi-val ' + tc.tx; }
+  if (dTier) dTier.textContent = ['ปกติ','เฝ้าระวัง','ปานกลาง','ผลกระทบสูง','วิกฤต'][t];
+
+  // Alerts
+  const dateStr = p.dateLabel || '—';
+  const ae = document.getElementById('crisisAlert');
+  const at = document.getElementById('crisisTitle');
+  const as = document.getElementById('crisisSub');
+  if (at) at.textContent = t >= 3
+    ? '⚠️ ราคาน้ำมันสูงผิดปกติ — ' + dateStr + ' ' + p.time
+    : 'ราคาน้ำมัน PTT Station — อัปเดต ' + dateStr + ' ' + p.time;
+  if (as) as.textContent =
+    `ดีเซล: ฿${p.diesel} | B20: ฿${p.b20} | G95: ฿${p.g95} | E85: ฿${p.e85} | WTI: $${p.wti}/bbl`
+    + (t >= 3 ? ' | Tier ' + t + ' เปิดมาตรการทันที' : '');
+  if (ae) ae.className = t >= 3 ? 'alert alert-crisis' : t >= 1 ? 'alert alert-info' : 'alert alert-ok';
+
+  // Notice bar
+  const nb = document.getElementById('noticeBar');
+  if (nb) nb.textContent = t >= 3
+    ? '⚠️ ราคาใหม่มีผลบังคับใช้ ' + dateStr + ' หลัง ' + p.time + ' — ดีเซล +฿' + Math.abs((p.diesel - p.diesel_p).toFixed(2)) + ' | ซูเปอร์พาวเวอร์ดีเซล +฿' + Math.abs((p.spd - p.spd_p).toFixed(2))
+    : '';
+
+  const sn = document.getElementById('sourceNote');
+  const lu = document.getElementById('lastUpdateLbl');
+  if (sn) sn.textContent = 'อัปเดตล่าสุด: ' + dateStr + ' ' + p.time + ' | ' + (p.source || '—');
+  if (lu) lu.textContent = 'อัปเดต: ' + dateStr + ' ' + p.time;
+
+  const rd = document.getElementById('regDieselTH');
+  if (rd) rd.textContent = '฿' + p.diesel.toFixed(2);
+
+  activeTier = t;
+  renderTierBtns();
+  renderTierBox(t);
+}
+
+// ─── TIER BOX ────────────────────────────────────────────────────
+function renderTierBtns() {
+  const sel = document.getElementById('tierSel');
+  if (!sel) return;
+  const clses = ['t0a','t1a','t2a','t3a','t4a'];
+  sel.innerHTML = TIER_CFG.map((tc, i) =>
+    `<button class="tbtn ${clses[i]}${i === activeTier ? ' active' : ''}" onclick="selectTier(${i})">${tc.label}${i === activeTier ? ' \u2605' : ''}</button>`
+  ).join('');
+}
+
+function renderTierBox(i) {
+  const tc = TIER_CFG[i];
+  const box = document.getElementById('tierBox');
+  if (!box) return;
+  box.className = 'tbox ' + tc.cls;
+  document.getElementById('tierIcon').textContent = tc.icon;
+  const tt = document.getElementById('tierTitle');
+  if (tt) { tt.textContent = tc.title; tt.className = 'tbox-title ' + tc.tx; }
+  const td = document.getElementById('tierDesc');
+  if (td) { td.textContent = tc.desc; td.className = 'tbox-desc ' + tc.tx; }
+  document.getElementById('tierBadges').innerHTML = tc.badges.map(b =>
+    `<span class="badge ${b.c}">${b.t}</span>`).join('');
+  const dots = ['dr','dr','do','do','da','da'];
+  document.getElementById('officeList').innerHTML = tc.office.map((x, j) =>
+    `<li><span class="dot ${dots[j] || 'da'}"></span>${x}</li>`).join('');
+  document.getElementById('factoryList').innerHTML = tc.factory.map((x, j) =>
+    `<li><span class="dot ${dots[j] || 'da'}"></span>${x}</li>`).join('');
+  document.getElementById('tlToday').textContent = tc.today;
+  document.getElementById('tlWeek').textContent  = tc.week;
+  document.getElementById('tlMonth').textContent = tc.month;
+}
+
+function selectTier(i) { activeTier = i; renderTierBtns(); renderTierBox(i); }
+
+// ─── HISTORY ─────────────────────────────────────────────────────
+function loadHist()  { try { const r = localStorage.getItem(SK); if (r) histData = JSON.parse(r); } catch(e) { histData = []; } }
+function saveHist()  { try { localStorage.setItem(SK, JSON.stringify(histData)); } catch(e) {} }
+
+function addToHist(p) {
+  const now = new Date();
+  const dateKey = p.dateKey || now.toISOString().slice(0,10);
+  const entry = { ...p, dateKey, tier: getTier(p.diesel), savedAt: now.toISOString() };
+  const idx = histData.findIndex(h => h.dateKey === dateKey);
+  if (idx >= 0) histData[idx] = entry; else histData.unshift(entry);
+  histData.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
+  if (histData.length > 90) histData = histData.slice(0,90);
+  saveHist();
+  renderHist(); renderTrend(); renderStats();
+}
+
+function renderHist() {
+  const wrap = document.getElementById('histWrap');
+  if (!wrap) return;
+  let data = histData;
+  if (histFilter === '3') data = data.filter(h => h.tier >= 3);
+  if (histFilter === '4') data = data.filter(h => h.tier >= 4);
+  if (!data.length) { wrap.innerHTML = '<div class="no-data">ไม่มีข้อมูลตามเงื่อนไข</div>'; return; }
+
+  const tpCls = ['tp0','tp1','tp2','tp3','tp4'];
+  const tpLbl = ['T0 ปกติ','T1 เฝ้าระวัง','T2 ปานกลาง','T3 ผลกระทบสูง','T4 วิกฤต'];
+  const rows = data.map((h, i) => {
+    const dd = h.diesel_p ? (h.diesel - h.diesel_p).toFixed(2) : 0;
+    const dc = dd > 0 ? 'up' : dd < 0 ? 'dn' : 'nc';
+    const ds = dd > 0 ? '▲' : dd < 0 ? '▼' : '—';
+    const eid = 'REF-' + h.dateKey.replace(/-/g,'') + '-' + (i+1);
+    return `<tr>
+      <td style="color:var(--muted)">${h.dateLabel || h.dateKey}</td>
+      <td style="font-weight:700">${h.diesel.toFixed(2)}</td>
+      <td>${h.b20 ? h.b20.toFixed(2) : '—'}</td>
+      <td class="${dc}">${ds} ${Math.abs(dd)}</td>
+      <td>${h.g95.toFixed(2)}</td>
+      <td>${h.e85 ? h.e85.toFixed(2) : '—'}</td>
+      <td>${h.wti ? '$'+h.wti.toFixed(2) : '—'}</td>
+      <td><span class="tp ${tpCls[h.tier]}">${tpLbl[h.tier]}</span></td>
+      <td><span class="ev">${eid}</span></td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<table class="htable">
+    <thead><tr><th>วันที่</th><th>Diesel</th><th>B20</th><th>เปลี่ยน</th><th>G95</th><th>E85</th><th>WTI</th><th>Tier</th><th>Evidence</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function setHf(f, el) {
+  histFilter = f;
+  document.querySelectorAll('.hf').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderHist();
+}
+
+function clearHist() {
+  if (!confirm('ลบประวัติทั้งหมด?')) return;
+  histData = []; saveHist(); renderHist(); renderTrend(); renderStats();
+  toast('ล้างประวัติแล้ว');
+}
+
+function exportCSV() {
+  if (!histData.length) { toast('ยังไม่มีข้อมูล'); return; }
+  const hdr = 'Date,Diesel,B20,G95,G91,E20,E85,SPDiesel,SPG95,WTI,Tier,Source,EvidenceID\n';
+  const rows = histData.map((h,i) => [
+    h.dateKey, h.diesel, h.b20||'', h.g95, h.g91||'', h.e20||'',
+    h.e85||'', h.spd||'', h.spg||'', h.wti||'', h.tier,
+    '"'+(h.source||'')+'"',
+    'REF-'+h.dateKey.replace(/-/g,'')+'-'+(i+1)
+  ].join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+hdr+rows], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'oil_history_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('Export CSV สำเร็จ');
+}
+
+// ─── TREND ───────────────────────────────────────────────────────
+function renderTrend() {
+  const canvas = document.getElementById('trendChart');
+  const empty  = document.getElementById('trendEmpty');
+  if (!canvas) return;
+  if (histData.length < 2) {
+    canvas.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  canvas.style.display = 'block';
+  if (empty) empty.style.display = 'none';
+  const sorted = [...histData].sort((a,b) => a.dateKey.localeCompare(b.dateKey)).slice(-30);
+  const labels  = sorted.map(h => (h.dateLabel || h.dateKey).slice(0,6));
+  const diesel  = sorted.map(h => h.diesel);
+  const b20arr  = sorted.map(h => h.b20 || null);
+  const wtiarr  = sorted.map(h => h.wti ? +(h.wti/3).toFixed(2) : null);
+  if (trendChartInst) { trendChartInst.destroy(); trendChartInst = null; }
+  trendChartInst = new Chart(canvas, {
+    type:'line',
+    data:{labels, datasets:[
+      {label:'ดีเซล',data:diesel,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',tension:.3,pointRadius:4,borderWidth:2,spanGaps:true},
+      {label:'B20',  data:b20arr, borderColor:'#f97316',backgroundColor:'transparent',tension:.3,pointRadius:3,borderDash:[3,2],borderWidth:1.5,spanGaps:true},
+      {label:'WTI/3',data:wtiarr,borderColor:'#3b82f6',backgroundColor:'transparent',tension:.3,pointRadius:3,borderDash:[4,3],borderWidth:1.5,spanGaps:true}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:10},color:'#888'},grid:{display:false}},
+        y:{ticks:{font:{size:10},color:'#888',callback:v=>'฿'+v},grid:{color:'rgba(0,0,0,.05)'},
+           min:Math.max(0,Math.min(...diesel.filter(Boolean))-5),
+           max:Math.max(...diesel.filter(Boolean))+5}
+      }
+    }
+  });
+}
+
+function renderStats() {
+  const grid = document.getElementById('sgrid');
+  if (!grid) return;
+  if (!histData.length) { grid.innerHTML = '<div class="no-data" style="grid-column:1/-1">รอข้อมูล...</div>'; return; }
+  const d = histData.map(h => h.diesel);
+  const b = histData.map(h => h.b20).filter(Boolean);
+  const mn = Math.min(...d).toFixed(2), mx = Math.max(...d).toFixed(2);
+  const avg = (d.reduce((a,v) => a+v,0)/d.length).toFixed(2);
+  const t3 = histData.filter(h => h.tier >= 3).length;
+  grid.innerHTML = [
+    {l:'Diesel สูงสุด',v:'฿'+mx,s:'ดูรายละเอียดใน Log'},
+    {l:'Diesel ต่ำสุด', v:'฿'+mn,s:'ดูรายละเอียดใน Log'},
+    {l:'Diesel เฉลี่ย', v:'฿'+avg,s:'ทุกวันที่บันทึก'},
+    {l:'วัน Tier 3+',   v:t3+' วัน',s:'จาก '+histData.length+' รายการ'}
+  ].map(s =>
+    `<div style="background:var(--gray-lt);border-radius:8px;padding:12px">
+       <div style="font-size:10px;color:var(--muted);margin-bottom:3px">${s.l}</div>
+       <div style="font-size:20px;font-weight:700">${s.v}</div>
+       <div style="font-size:11px;color:var(--muted)">${s.s}</div>
+     </div>`
+  ).join('');
+}
+
+// ─── MEASURES ────────────────────────────────────────────────────
+const TAG_LBL = {
+  'tag-cp':'CPF','tag-nestle':'Nestlé','tag-betagro':'Betagro',
+  'tag-ptt':'ปตท.','tag-best':'Best Practice',
+  'tag-office':'ออฟฟิศ','tag-factory':'โรงงาน','tag-all':'ทุกกลุ่ม'
+};
+
+function renderMeasures() {
+  let data = MEASURES;
+  if (currentCat !== 'all') data = data.filter(m => m.cat === currentCat);
+  if (currentTf  !== 'all') data = data.filter(m => m.tiers[parseInt(currentTf)] === 1);
+  const grid = document.getElementById('mgrid');
+  if (!grid) return;
+  if (!data.length) { grid.innerHTML = '<div class="no-data" style="grid-column:1/-1">ไม่มีมาตรการตรงเงื่อนไข</div>'; return; }
+  grid.innerHTML = data.map(m => {
+    const tdots = m.tiers.map((on,i) => `<div class="tdot d${i}${on?' on':''}"></div>`).join('');
+    const tags  = m.tags.map(t => `<span class="mtag ${t}">${TAG_LBL[t]||t}</span>`).join('');
+    return `<div class="mcard">
+      <div class="mcard-hdr"><div class="mcard-icon">${m.icon}</div><div class="mcard-title">${m.title}</div></div>
+      <div class="mcard-desc">${m.desc}</div>
+      <div class="mcard-ref">${m.ref}</div>
+      <div class="imp-row"><span>ผลกระทบ</span><span>${m.impact}%</span></div>
+      <div class="imp-track"><div class="imp-fill ${m.ic}" style="width:${m.impact}%"></div></div>
+      <div class="mcard-ft">${tags}<div class="tdots">${tdots}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function setCat(c,el) {
+  currentCat = c;
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); renderMeasures();
+}
+function setTf(t,el) {
+  currentTf = t;
+  document.querySelectorAll('.tfbtn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); renderMeasures();
+}
+
+// ─── TABS ────────────────────────────────────────────────────────
+function showTab(name, el) {
+  ['dashboard','measures','history','trend','region'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t === name);
+  });
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (name === 'trend')   { renderTrend(); renderStats(); }
+  if (name === 'history') renderHist();
+  if (name === 'measures') renderMeasures();
+}
+
+// ─── UPDATE PANEL ────────────────────────────────────────────────
+function openUpdatePanel() {
+  const panel = document.getElementById('updatePanel');
+  panel.classList.add('show');
+  fetchWTI();
+  if (curPrice) {
+    document.getElementById('f_diesel').value = curPrice.diesel || '';
+    document.getElementById('f_b20').value    = curPrice.b20    || '';
+    document.getElementById('f_g95').value    = curPrice.g95    || '';
+    document.getElementById('f_g91').value    = curPrice.g91    || '';
+    document.getElementById('f_e20').value    = curPrice.e20    || '';
+    document.getElementById('f_e85').value    = curPrice.e85    || '';
+    document.getElementById('f_spd').value    = curPrice.spd    || '';
+    document.getElementById('f_spg').value    = curPrice.spg    || '';
+    document.getElementById('f_wti').value    = curPrice.wti    || '';
+    document.getElementById('f_src').value    = 'PTT Station ' + new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) + ' น.';
+  }
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+function closeUpdatePanel() {
+  document.getElementById('updatePanel').classList.remove('show');
+}
+
+function saveUpdate() {
+  const diesel = parseFloat(document.getElementById('f_diesel').value);
+  const b20    = parseFloat(document.getElementById('f_b20').value);
+  const g95    = parseFloat(document.getElementById('f_g95').value);
+  const e85    = parseFloat(document.getElementById('f_e85').value);
+  if (isNaN(diesel)||isNaN(b20)||isNaN(g95)||isNaN(e85)) {
+    toast('กรุณากรอก Diesel, B20, G95 และ E85 อย่างน้อย'); return;
+  }
+  const prev = curPrice || PRICE_HISTORY[PRICE_HISTORY.length-1];
+  const now  = new Date();
+  const p = {
+    dateKey:  now.toISOString().slice(0,10),
+    dateLabel:now.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}),
+    time:     now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) + ' น.',
+    diesel,   diesel_p: prev.diesel,
+    b20,      b20_p:    prev.b20,
+    g95,      g95_p:    prev.g95,
+    g91:      parseFloat(document.getElementById('f_g91').value) || prev.g91,
+    g91_p:    prev.g91,
+    e20:      parseFloat(document.getElementById('f_e20').value) || prev.e20,
+    e20_p:    prev.e20,
+    e85,      e85_p:    prev.e85,
+    spd:      parseFloat(document.getElementById('f_spd').value) || prev.spd,
+    spd_p:    prev.spd,
+    spg:      parseFloat(document.getElementById('f_spg').value) || prev.spg,
+    spg_p:    prev.spg,
+    wti:      parseFloat(document.getElementById('f_wti').value) || prev.wti,
+    wti_p:    prev.wti,
+    source:   document.getElementById('f_src').value || 'HR Update'
+  };
+  curPrice = p;
+  renderAllKPIs(p);
+  addToHist(p);
+  closeUpdatePanel();
+  toast('บันทึกและอัปเดต Dashboard สำเร็จ');
+}
+
+// ─── WTI AUTO-FETCH ──────────────────────────────────────────────
+async function fetchWTI() {
+  const sdot = document.getElementById('sdot');
+  if (sdot) sdot.classList.add('spin');
+  const badgeEl = document.getElementById('wtiLiveBadge');
+  const barVal  = document.getElementById('wtiBarVal');
+  const barSrc  = document.getElementById('wtiBarSrc');
+  try {
+    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=2d';
+    const res  = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), {signal:AbortSignal.timeout(8000)});
+    const json = await res.json();
+    const meta = JSON.parse(json.contents).chart.result[0].meta;
+    const price = meta.regularMarketPrice || meta.previousClose;
+    if (badgeEl) badgeEl.textContent = 'WTI: $' + price.toFixed(2);
+    if (barVal)  barVal.textContent  = '$' + price.toFixed(2);
+    if (barSrc)  barSrc.textContent  = 'Yahoo Finance (CL=F) · ' + new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) + ' น.';
+    document.getElementById('f_wti').value = price.toFixed(2);
+  } catch(e) {
+    if (badgeEl) badgeEl.textContent = 'WTI: —';
+    if (barVal)  barVal.textContent  = 'โหลดไม่ได้ — กรอกเอง';
+  }
+  if (sdot) sdot.classList.remove('spin');
+}
+
+// ─── AUTO REFRESH SCHEDULE ───────────────────────────────────────
+function scheduleRefresh() {
+  const now  = new Date();
+  const next = new Date(now);
+  next.setHours(8,0,0,0);
+  if (now >= next) next.setDate(next.getDate()+1);
+  setTimeout(() => {
+    fetchWTI().then(() => { openUpdatePanel(); toast('08:00 น. กรุณาอัปเดตราคาน้ำมัน'); });
+    setInterval(() => scheduleRefresh(), 24*60*60*1000);
+  }, next - now);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+function init() {
+  loadHist();
+
+  // ใส่ PRICE_HISTORY เข้า histData (overwrite เสมอ = source of truth)
+  PRICE_HISTORY.forEach(p => {
+    const idx = histData.findIndex(h => h.dateKey === p.dateKey);
+    if (idx >= 0) histData.splice(idx, 1);
+    histData.push({...p, tier: getTier(p.diesel)});
+  });
+  histData.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
+  saveHist();
+
+  // curPrice = วันล่าสุดใน PRICE_HISTORY (5 เม.ย.)
+  curPrice = PRICE_HISTORY[PRICE_HISTORY.length - 1];
+
+  // Render KPIs ด้วย curPrice โดยตรง
+  renderAllKPIs(curPrice);
+  renderTierBtns();
+  renderTierBox(getTier(curPrice.diesel));
+  renderHist();
+  renderMeasures();
+
+  // WTI badge
+  fetchWTI();
+  scheduleRefresh();
+}
+
+init();
+</script>
+</body>
+</html>
